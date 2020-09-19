@@ -6,18 +6,26 @@ module.exports = function transform(arr) {
   const disprev = '--discard-prev';
   const doubleprev = '--double-prev';
   const doublenext = '--double-next';
-  
-  for (let i = 0; i < arr.length; i++) {
-    if (arr[0] === disprev || arr[0] === doubleprev) arr.splice(0, 1);
-    if (arr[arr.length-1] === doublenext || arr[arr.length-1] === disnext) arr.splice(arr.length-1, 1);
-    if (arr[i] === doubleprev) arr.splice(i, 1, arr[i-1]);
-    if (arr[i] === doublenext) arr.splice(i, 1, arr[i+1]);    
-  }
-  for (let i = 0; i < arr.length; i++) {
-    if (arr[0] === disprev) arr.splice(0, 1);
-    if (arr[arr.length-1] === disnext) arr.splice(arr.length-1, 1);
-    if (arr[i] === disprev) {arr.splice(i-1, 2);i--;}
-    if (arr[i] === disnext) {arr.splice(i, 2);i--;}   
-  }
-  return arr;
-};
+  let currentValue;
+
+  const newArr = arr.map((item, i) => {
+    
+    if (arr[i+1] === disprev) {
+      currentValue = item;
+      return undefined;
+    } else if (arr[i-1] === disnext) {
+      currentValue = undefined;
+      return undefined;
+    } else if (arr[i] === doubleprev && currentValue !== undefined) {
+      currentValue = item;
+      return arr[i-1];
+    } else if (arr[i] === doublenext) {
+      currentValue = item;
+      return arr[i+1];
+    } else {
+      currentValue = item;
+      return item;
+    }        
+  })
+  return newArr.filter((i) => i !== undefined && i !== disprev && i !== disnext && i !== doublenext && i !== doubleprev);
+}
